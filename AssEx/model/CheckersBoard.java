@@ -1,0 +1,276 @@
+import java.util.Vector;
+
+public class CheckersBoard{
+
+   	// Square states
+   	public static final int EMPTY = 0;
+    public static final int RED = 1;
+    public static final int RED_KING = 2;
+    public static final int BLACK = 3;
+    public static final int BLACK_KING = 4;
+
+   	private int[][] board;
+
+   	// Create the board and setup for a new game
+   	public CheckersBoard(){
+    	board = new int[8][8];
+    	arrangeBoard();
+   	}
+   
+   	// Sets initial state for game board
+   	public void arrangeBoard() {
+      	for (int row = 0; row < 8; row++){
+         	for (int col = 0; col < 8; col++){
+            	if (row % 2 == col % 2){
+               		if (row < 3){
+                  		board[row][col] = BLACK;
+               		} else if (row > 4){
+                  		board[row][col] = RED;
+               		} else{
+                  		board[row][col] = EMPTY;
+               		}
+            	} else {
+                	board[row][col] = EMPTY;
+            	}
+         	}
+     	}
+	}
+
+   	// Getter for piece in square
+   	public int pieceAt(int row, int col){
+       	return board[row][col];
+   	}
+   
+   	// Setter for piece in square
+   	public void setPieceAt(int row, int col, int piece){
+    	board[row][col] = piece;
+   	}
+   
+	public void makeMove(CheckersMove move){
+		// Make the specified move.  It is assumed that move
+		// is non-null and that the move it represents is legal.
+      	makeMove(move.fromRow, move.fromCol, move.toRow, move.toCol);
+   	}
+   
+   	public void makeMove(int fromRow, int fromCol, int toRow, int toCol){
+		// Make the move from (fromRow,fromCol) to (toRow,toCol).  It is
+		// assumed that this move is legal.  If the move is a jump, the
+		// jumped piece is removed from the board.  If a piece moves
+		// the last row on the opponent's side of the board, the 
+		// piece becomes a king.
+      	board[toRow][toCol] = board[fromRow][fromCol];
+      	board[fromRow][fromCol] = EMPTY;
+      	if (fromRow - toRow == 2 || fromRow - toRow == -2){
+            // The move is a jump.  Remove the jumped piece from the board.
+         	int jumpRow = (fromRow + toRow) / 2;  // Row of the jumped piece.
+         	int jumpCol = (fromCol + toCol) / 2;  // Column of the jumped piece.
+         	board[jumpRow][jumpCol] = EMPTY;
+      	}
+      	if (toRow == 0 && board[toRow][toCol] == RED){
+        	board[toRow][toCol] = RED_KING;
+      	}
+      	if (toRow == 7 && board[toRow][toCol] == BLACK){
+         	board[toRow][toCol] = BLACK_KING;
+      	}
+   	}
+   
+   	public CheckersMove[] getLegalMoves(int player){
+          // Return an array containing all the legal CheckersMoves
+          // for the specfied player on the current board.  If the player
+          // has no legal moves, null is returned.  The value of player
+          // should be one of the constants RED or BLACK; if not, null
+          // is returned.  If the returned value is non-null, it consists
+          // entirely of jump moves or entirely of regular moves, since
+          // if the player can jump, only jumps are legal moves.
+
+      	if (player != RED && player != BLACK){
+         	return null;
+      	}
+
+      	int playerKing;  // The constant representing a King belonging to player.
+
+     	if (player == RED){
+         	playerKing = RED_KING;
+     	} else {
+         	playerKing = BLACK_KING;
+      	}
+
+      	Vector moves = new Vector();  // Moves will be stored in this vector.
+      
+      /*  First, check for any possible jumps.  Look at each square on the board.
+          If that square contains one of the player's pieces, look at a possible
+          jump in each of the four directions from that square.  If there is 
+          a legal jump in that direction, put it in the moves vector.
+      */
+
+      	for (int row = 0; row < 8; row++){
+         	for (int col = 0; col < 8; col++){
+            	if (board[row][col] == player || board[row][col] == playerKing){
+               		if (canJump(player, row, col, row+1, col+1, row+2, col+2)){
+                  		moves.addElement(new CheckersMove(row, col, row+2, col+2));
+               		}
+               		if (canJump(player, row, col, row-1, col+1, row-2, col+2)){
+                  		moves.addElement(new CheckersMove(row, col, row-2, col+2));
+               		}
+               		if (canJump(player, row, col, row+1, col-1, row+2, col-2)){
+                  		moves.addElement(new CheckersMove(row, col, row+2, col-2));
+               		}
+               		if (canJump(player, row, col, row-1, col-1, row-2, col-2)){
+                  		moves.addElement(new CheckersMove(row, col, row-2, col-2));
+               		}
+            	}
+         	}
+      	}
+      
+      /*  If any jump moves were found, then the user must jump, so we don't 
+          add any regular moves.  However, if no jumps were found, check for
+          any legal regualar moves.  Look at each square on the board.
+          If that square contains one of the player's pieces, look at a possible
+          move in each of the four directions from that square.  If there is 
+          a legal move in that direction, put it in the moves vector.
+      */
+      
+      	if (moves.size() == 0){
+         	for (int row = 0; row < 8; row++){
+            	for (int col = 0; col < 8; col++){
+               		if (board[row][col] == player || board[row][col] == playerKing) {
+                  		if (canMove(player,row,col,row+1,col+1)){
+                     		moves.addElement(new CheckersMove(row,col,row+1,col+1));
+                  		}
+                  		if (canMove(player,row,col,row-1,col+1)){
+                     		moves.addElement(new CheckersMove(row,col,row-1,col+1));
+                  		}
+                  		if (canMove(player,row,col,row+1,col-1)){
+                     		moves.addElement(new CheckersMove(row,col,row+1,col-1));
+                  		}
+                  		if (canMove(player,row,col,row-1,col-1)){
+                     		moves.addElement(new CheckersMove(row,col,row-1,col-1));
+                  		}
+               		}
+            	}
+         	}
+      	}
+      
+      /* If no legal moves have been found, return null.  Otherwise, create
+         an array just big enough to hold all the legal moves, copy the
+         legal moves from the vector into the array, and return the array. */
+      
+      	if (moves.size() == 0){
+         	return null;
+      	} else {
+         	CheckersMove[] moveArray = new CheckersMove[moves.size()];
+         	for (int i = 0; i < moves.size(); i++){
+            	moveArray[i] = (CheckersMove)moves.elementAt(i);
+         	}
+         	return moveArray;
+      	}
+   	}
+   
+   	public CheckersMove[] getLegalJumpsFrom(int player, int row, int col) {
+         // Return a list of the legal jumps that the specified player can
+         // make starting from the specified row and column.  If no such
+         // jumps are possible, null is returned.  The logic is similar
+         // to the logic of the getLegalMoves() method.
+      	if (player != RED && player != BLACK){
+         	return null;
+      	}
+      	int playerKing;  // The constant representing a King belonging to player.
+      	if (player == RED){
+         	playerKing = RED_KING;
+      	} else {
+         	playerKing = BLACK_KING;
+      	}
+      	Vector moves = new Vector();  // The legal jumps will be stored in this vector.
+
+      	if (board[row][col] == player || board[row][col] == playerKing) {
+         	if (canJump(player, row, col, row+1, col+1, row+2, col+2))
+            	moves.addElement(new CheckersMove(row, col, row+2, col+2));
+         	if (canJump(player, row, col, row-1, col+1, row-2, col+2))
+            	moves.addElement(new CheckersMove(row, col, row-2, col+2));
+         	if (canJump(player, row, col, row+1, col-1, row+2, col-2))
+            	moves.addElement(new CheckersMove(row, col, row+2, col-2));
+         	if (canJump(player, row, col, row-1, col-1, row-2, col-2))
+            	moves.addElement(new CheckersMove(row, col, row-2, col-2));
+      	}
+
+      	if (moves.size() == 0){
+         	return null;
+      	} else {
+         	CheckersMove[] moveArray = new CheckersMove[moves.size()];
+         	for (int i = 0; i < moves.size(); i++)
+            	moveArray[i] = (CheckersMove)moves.elementAt(i);
+         	return moveArray;
+      	}
+   	} 
+   
+   	private boolean canJump(int player, int fromRow, int fromCol, int midRow, int midCol, int endRow, int endCol) {
+           // This is called by the two previous methods to check whether the
+           // player can legally jump from (r1,c1) to (r3,c3).  It is assumed
+           // that the player has a piece at (r1,c1), that (r3,c3) is a position
+           // that is 2 rows and 2 columns distant from (r1,c1) and that 
+           // (r2,c2) is the square between (r1,c1) and (r3,c3).
+
+        // end point of jump is off the board   
+      	if (endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8){
+         	return false;
+      	}
+        
+        // end point contains a piece
+      	if (board[endRow][endCol] != EMPTY){
+         	return false;
+      	}
+         
+      	if (player == RED){
+      		// Regular red piece can only move  up.
+         	if (board[fromRow][fromCol] == RED && endRow > fromRow){
+            	return false;
+         	}
+         	// There is no black piece to jump.
+         	if (board[midRow][midCol] != BLACK && board[midRow][midCol] != BLACK_KING){
+            	return false;
+         	}
+         	return true;
+      	} else {
+      		// Regular black piece can only move downn.
+         	if (board[fromRow][fromCol] == BLACK && endRow < fromRow){
+            	return false;
+         	}
+         	// There is no red piece to jump.
+         	if (board[midRow][midCol] != RED && board[midRow][midCol] != RED_KING){
+            	return false;
+         	}
+         	return true;
+      	}
+   	}
+   
+   	private boolean canMove(int player, int fromRow, int fromCol, int toRow, toCol) {
+         // This is called by the getLegalMoves() method to determine whether
+         // the player can legally move from (r1,c1) to (r2,c2).  It is
+         // assumed that (r1,r2) contains one of the player's pieces and
+         // that (r2,c2) is a neighboring square.
+
+        // desired move is off the game board
+      	if (toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8){
+         	return false; 
+      	}
+		
+		// desired move end already contains a piece 
+      	if (board[toRow][toCol] != EMPTY){
+         	return false;
+      	}
+
+      	if (player == RED){
+      		// a regular red piece can only move down
+         	if (board[fromRow][fromCol] == RED && toRow > fromRow){
+             	return false;  
+         	}
+          	return true;
+      	} else {
+      		// a regular black piece can only move up
+         	if (board[fromRow][fromCol] == BLACK && toRow < fromRow){
+             	return false; 
+         	}
+          	return true;
+      	}  
+   	}
+}
