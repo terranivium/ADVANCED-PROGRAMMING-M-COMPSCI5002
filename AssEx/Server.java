@@ -1,8 +1,12 @@
 import java.net.Socket;
 import java.net.ServerSocket;
-import java.util.Scanner;
+import model.*;
+
 
 public class Server{
+
+    private 
+
     public static void main(String[] args) {
         ServerSocket listener = null;
         Socket client1 = null;
@@ -18,9 +22,12 @@ public class Server{
             client2 = listener.accept();
             System.out.println("Player Two connected!");
             System.out.println("GAME START!");
- 
-            Thread c1 = new Thread(new ServerThread(client1));
-            Thread c2 = new Thread(new ServerThread(client2));
+    
+            // MVC instances, threads share the same model?
+            CheckersBoard model = new CheckersBoard();
+
+            Thread c1 = new Thread(new ServerThread(client1, model));
+            Thread c2 = new Thread(new ServerThread(client2, model));
 
             c1.start();
             c2.start();
