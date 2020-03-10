@@ -13,74 +13,57 @@ public class ServerThread implements Runnable{
 	public ServerThread(Socket p1, Socket p2){
 		this.p1 = p1;
         this.p2 = p2;
-        model = new CheckersModel();
+        this.model = new CheckersModel();
 	}
 
     public void run(){
         // Displaying the thread that is running 
-        System.out.println ("Thread " + Thread.currentThread().getId() + " is running");
-
-        //osClient.write('x');
+        System.out.println ("Game thread is running...");
 
         try{
-            OutputStreamWriter outToClient1 = new OutputStreamWriter(p1.getOutputStream());
-            OutputStreamWriter outToClient2 = new OutputStreamWriter(p2.getOutputStream());
+            BufferedReader inFromClient1 =
+                new BufferedReader(
+                    new InputStreamReader(this.p1.getInputStream()));
+            BufferedReader inFromClient2 =
+                new BufferedReader(
+                    new InputStreamReader(this.p2.getInputStream()));
+
+            OutputStreamWriter outToClient1 = new OutputStreamWriter(this.p1.getOutputStream());
+            OutputStreamWriter outToClient2 = new OutputStreamWriter(this.p2.getOutputStream());
             
-            String name = model.printBoard();
-            outToClient1.write(name);
-            outToClient2.write(name);
+            String outString = this.model.printBoard();
+            outToClient1.write(outString);
+            outToClient2.write(outString);
             outToClient1.flush();
             outToClient2.flush();
 
-            BufferedReader inFromClient1 =
-                new BufferedReader(
-                    new InputStreamReader(p1.getInputStream()));
-            BufferedReader inFromClient2 =
-                new BufferedReader(
-                    new InputStreamReader(p2.getInputStream()));
+            // Loop until game is over.
+            while (!this.model.gameOver()){
+            //Execute a move and print the board out afterwards.
+                if(this.model.getPlayerTurn().equals('r'));{
+                    this.model.getNextMove();
+                } else if(this.model.getPlayerTurn().equals('b')){
 
-             // MVC instances, threads share the same model
+                } else{
+                    ;
+                }
+                
+                outString = this.model.printBoard();
+                outToClient1.write(outString);
+                outToClient2.write(outString);
+                outToClient1.flush();
+                outToClient2.flush();
+            }
 
+            // Announce winner.
+            System.out.println();
+            System.out.println("The winner is " + this.model.winnerIs());
+            outToClient1.close();
+            outToClient2.close();
+            this.p1.close();
+            this.p2.close();
         } catch(Exception e){
             ;
         }
-        //System.out.print(name);
-
-        // // Loop until game is over.
-                // while (!model.gameOver()){
-                // //Execute a move and print the board out afterwards.
-                //     model.getNextMove();
-                //     model.printBoard();
-                // }
-                // // Announce winner.
-                // System.out.println("The winner is " + model.winnerIs());
     }
-
-	// public void run(){
-	// 	try
- //        { 
- //            // Displaying the thread that is running 
- //            System.out.println ("Thread " + Thread.currentThread().getId() + " is running");
- //            //OutputStreamWriter osClient = new OutputStreamWriter(this.client.getOutputStream());
-
- //            //osClient.write('x');
-
- //            PrintWriter outToClient =
- //        		new PrintWriter(client.getOutputStream(), true);
- //    		BufferedReader inFromClient =
- //        		new BufferedReader(
- //            		new InputStreamReader(client.getInputStream()));
-
- //        	System.out.println(inFromClient.readLine());
- //        	in.close();
- //        	out.close();
- //            //osClient.flush();
- //            this.client.close();
- //        } 
- //        catch (Exception e) 
- //        { 
- //            // Throwing an exception 
- //            System.out.println ("Exception is caught"); 
- //        } 
-	// }
 }

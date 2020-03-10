@@ -1,14 +1,13 @@
-//package model;
-
 import java.io.*;
 import java.util.*;
 
 public class CheckersModel{
 
-    private char[][] board; // Stores the checkerboard, with chars 'r','b','_'
-    private int redCheckers; // Number of red checkers on the board
-    private int blackCheckers; // Number of black checkers on the board
-    private char playerTurn; // Either 'r' or 'b', for who's move it currently is.
+    private char[][] board;
+    private int redCheckers;
+    private int blackCheckers;
+    private char playerTurn;
+	private String clientConsole;    
 
     // Constructs default Checkers object, initializing board to starting
     // playing position.
@@ -38,54 +37,62 @@ public class CheckersModel{
 		}
     }
 
+    public char getPlayerTurn(){
+    	return this.playerTurn;
+    }
+
     // Print out the checkerboard, by looping through all board positions in
     // appropriate order.
     public String printBoard(){
 		int i;
 		int j;
-		String output;
-		output = "  1 2 3 4 5 6 7 8 x\n";
+		String drawBoard;
+		drawBoard = "  1 2 3 4 5 6 7 8 x\n";
 		for (i=0;i<8;i++) {
-		    output += (i+1) + " ";
+		    drawBoard += (i+1) + " ";
 		    for (j=0;j<8;j++) {
-				output += board[j][i] + " ";
+				drawBoard += board[j][i] + " ";
 		    }
-		    output += "\n";
+		    drawBoard += "\n";
 		}
-		output += "y\n";
-		return output;
+		drawBoard += "y\n";
+		return drawBoard;
     }
 
     // This method executes one move.
-    public void getNextMove() throws IOException {
-	
-		Scanner userInput = new Scanner(System.in);
+    public void getNextMove(Scanner userInput) throws IOException {
 
 		if (playerTurn=='r'){
-		    System.out.println("It is your turn, red.");
+		    clientConsole = "It is Player 1's turn (red)...\n";
 		} else {
-		    System.out.println("It is your turn, black.");
+		    clientConsole = "It is Player 2's turn (black)...\n";
 		}
+
+		// get clientconsole, print to cli terminal
 
 		boolean moved = false;
 		// Loops until legal move is entered.
 		while (!moved) {
 		    // Reads in square to move from and to.
-		    System.out.println("Enter from the square you would like to move from.");
-		    System.out.print("Enter as a 2-digit number. (e.g. if you were moving from");
-		    System.out.println(" x=1,y=3, enter 13");
+		    clientConsole = "Enter from the square you would like to move from.\n";
+		    clientConsole += "Enter as a 2-digit number. (e.g. if you were moving from\n";
+		    clientConsole += " x=1,y=3, enter 13\n";
 		    int moveFrom = userInput.nextInt();
 
-		    System.out.print("Enter from the square you would like to move to, ");
-		    System.out.println("using the same convention.");
+		    // get clientconsole, print to cli terminal
+
+		    clientConsole = "Enter from the square you would like to move to, \n";
+		    clientConsole += "using the same convention.\n";
 		    int moveTo = userInput.nextInt();
+
+		    // get clientconsole, print to cli terminal
 
 		    // Checks to see if move is valid, if so, executes it.
 		    if (validMove(moveFrom, moveTo)){
 				executeMove(moveFrom, moveTo);
 				moved = true;
 		    } else {
-				System.out.println("That was an invalid move, try again.");
+				clientConsole = "That was an invalid move, try again.\n";
 			}
 		}
 
@@ -166,20 +173,4 @@ public class CheckersModel{
 		    return "black";
 		}
     }
-
-  //   public static void main(String args[]) throws IOException {
-
-		// // Setup and print out checker board.
-		// CheckersModel model = new CheckersModel();
-		// System.out.print(model.printBoard());
-		
-		// // // Loop until game is over.
-		// // while (!this.model.gameOver()){
-		// //     //Execute a move and print the board out afterwards.
-		// //     this.model.getNextMove();
-		// //     System.out.print(this.model.printBoard());
-		// // }
-		// // // Announce winner.
-		// // System.out.println("The winner is " + model.winnerIs());
-  //   }
 }
