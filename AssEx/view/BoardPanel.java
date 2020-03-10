@@ -8,6 +8,9 @@ public class BoardPanel extends JPanel{
 
 	public BoardPanel(){
 		for(int i = 0; i < 64; i++) {
+
+			// must match board model to board in view
+
   			JPanel square = new JPanel(new BorderLayout());
   			this.add(square);
 

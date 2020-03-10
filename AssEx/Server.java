@@ -1,11 +1,55 @@
 import java.net.Socket;
 import java.net.ServerSocket;
-import model.*;
-
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class Server{
 
-    private 
+    // private CheckersModel model;
+
+    // public void startNewGame(final Socket p1, final Socket p2){
+    //     new Thread(new Runnable(){
+    //         @Override
+    //         public void run(){
+    //             // Displaying the thread that is running 
+    //             System.out.println ("Thread " + Thread.currentThread().getId() + " is running");
+    //             //OutputStreamWriter osClient = new OutputStreamWriter(client.getOutputStream());
+
+    //             //osClient.write('x');
+
+    //             try{
+    //                 PrintWriter outToClient1 =
+    //                     new PrintWriter(p1.getOutputStream(), true);
+    //                 PrintWriter outToClient2 =
+    //                     new PrintWriter(p2.getOutputStream(), true);
+    //                 BufferedReader inFromClient1 =
+    //                     new BufferedReader(
+    //                         new InputStreamReader(p1.getInputStream()));
+    //                 BufferedReader inFromClient2 =
+    //                     new BufferedReader(
+    //                         new InputStreamReader(p2.getInputStream()));
+
+    //                  // MVC instances, threads share the same model?
+                    
+    //                 outToClient1.print(model.printBoard());
+    //                 outToClient2.print(model.printBoard());
+    //             } catch(Exception e){
+    //                 ;
+    //             }
+
+    //             // // Loop until game is over.
+    //             // while (!model.gameOver()){
+    //             // //Execute a move and print the board out afterwards.
+    //             //     model.getNextMove();
+    //             //     model.printBoard();
+    //             // }
+    //             // // Announce winner.
+    //             // System.out.println("The winner is " + model.winnerIs());
+    //         }
+    //     }).start();
+    // }        
 
     public static void main(String[] args) {
         ServerSocket listener = null;
@@ -22,19 +66,13 @@ public class Server{
             client2 = listener.accept();
             System.out.println("Player Two connected!");
             System.out.println("GAME START!");
-    
-            // MVC instances, threads share the same model?
-            CheckersBoard model = new CheckersBoard();
+            
+            Thread game = new Thread(new ServerThread(client1, client2));
 
-            Thread c1 = new Thread(new ServerThread(client1, model));
-            Thread c2 = new Thread(new ServerThread(client2, model));
-
-            c1.start();
-            c2.start();
-            try{
-                c1.join();
-                c2.join();
-            }catch(InterruptedException e){
+            game.start();
+            try {
+                game.join();
+            } catch(InterruptedException e){
                 e.printStackTrace();
             }
 
@@ -43,7 +81,7 @@ public class Server{
             System.out.println("---------");
 
             listener.close();
-        } catch(Exception e) {
+        } catch(Exception e){
             e.printStackTrace(); 
         }
     }    
