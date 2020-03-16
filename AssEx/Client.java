@@ -31,8 +31,6 @@ public class Client {
     private Scanner in;
     private PrintWriter out;
 
-    private boolean mousePressed = false;
-
     public Client(String serverAddress) throws Exception {
 
         socket = new Socket(serverAddress, 58901);
@@ -51,17 +49,17 @@ public class Client {
             for (var j = 0; j < board[0].length; j++) {
                 final int l = j;
                 if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1)) {
-                    board[i][j] = new Square(i, j);
+                    board[i][j] = new Square();
                     board[i][j].setColour(true);
                 } else {
-                    board[i][j] = new Square(i, j);
+                    board[i][j] = new Square();
                     board[i][j].setColour(false);
                 }
                 boardPanel.add(board[k][l]);
             }
             frame.getContentPane().add(boardPanel, BorderLayout.CENTER);
         }
-        boardPanel.addMouseListener(new MouseAdapter() {
+        boardPanel.addMouseListener(new MouseAdapter(){
             public void mousePressed(MouseEvent e) {
                     fromCol = e.getX() / 75;
                     fromRow = e.getY() / 72;
@@ -86,12 +84,31 @@ public class Client {
      * game. If the answer is no, the loop is exited and the server is sent a "QUIT"
      * message.
      */
+
+    public void setup(){
+        int i,j;
+        for (i=1;i<8;i+=2) {
+            board[1][i].setText('r');
+            board[5][i].setText('b');
+            board[7][i].setText('b');
+        }
+        for (i=0;i<8;i+=2) {
+            board[0][i].setText('r');
+            board[2][i].setText('r');
+            board[6][i].setText('b');
+        }
+    }
+
     public void play() throws Exception {
         try {
             var response = in.nextLine();
             var mark = response.charAt(8);
             var opponentMark = mark == 'r' ? 'b' : 'r';
             frame.setTitle("Checkers: Player " + mark);
+
+            // setup board?
+            setup();
+
             while (in.hasNextLine()) {
                 response = in.nextLine();
                 if (response.startsWith("VALID_MOVE")) {
@@ -101,10 +118,15 @@ public class Client {
                     moveFrom.repaint();
                     moveTo.repaint();
                 } else if (response.startsWith("OPPONENT_MOVED")) {
-                    var loc1 = Integer.parseInt(response.substring(15,16));
-                    var loc2 = Integer.parseInt(response.substring(16,17));
-                    board[loc1][loc2].setText(opponentMark);
-                    board[loc1][loc2].repaint();
+                    System.out.println(response);
+                    var opMoveFrom1 = Integer.parseInt(response.substring(15,16));
+                    var opMoveFrom2 = Integer.parseInt(response.substring(16,17));
+                    var opMoveTo1 = Integer.parseInt(response.substring(17,18));
+                    var opMoveTo2 = Integer.parseInt(response.substring(18,19));
+                    board[opMoveFrom1][opMoveFrom2].setText(' ');
+                    board[opMoveTo1][opMoveTo2].setText(opponentMark);
+                    board[opMoveFrom1][opMoveFrom2].repaint();
+                    board[opMoveTo1][opMoveTo2].repaint();
                     messageLabel.setText("Opponent moved, your turn");
                 } else if (response.startsWith("MESSAGE")) {
                     messageLabel.setText(response.substring(8));
@@ -133,23 +155,12 @@ public class Client {
 
     static class Square extends JPanel {
         JLabel label = new JLabel();
-        int i;
-        int j;
 
-        public Square(int i, int j) {
+        public Square() {
             setLayout(new GridBagLayout());
             label.setFont(new Font("Arial", Font.BOLD, 40));
             add(label);
-            this.i = i;
-            this.j = j;
-        }
 
-        public int getI() {
-            return i;
-        }
-
-        public int getJ() {
-            return j;
         }
 
         public void setColour(boolean squareColour){

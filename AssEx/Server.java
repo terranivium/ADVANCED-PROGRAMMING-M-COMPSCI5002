@@ -18,6 +18,8 @@ public class Server{
                 System.out.println("Player 1 connected...");
                 pool.execute(game.new Player(listener.accept(), 'b'));
                 System.out.println("Player 2 connected...");
+                game.setupBoard();
+
             }
         }
     }
@@ -28,6 +30,29 @@ class Game {
     // Board cells numbered 0-8, top to bottom, left to right; null if empty
     private Player[][] board = new Player[8][8];
     Player currentPlayer;
+
+    public Game(){
+
+    }
+
+    public void setupBoard(){
+        int i,j;
+        for (i=0;i<8;i++){
+            for (j=0;j<8;j++){
+                board[j][i] = null;
+            }
+        }
+        for (i=1;i<8;i+=2) {
+            board[1][i] = currentPlayer;
+            board[5][i] = currentPlayer.opponent;
+            board[7][i] = currentPlayer.opponent;
+        }
+        for (i=0;i<8;i+=2) {
+            board[0][i] = currentPlayer;
+            board[2][i] = currentPlayer;
+            board[6][i] = currentPlayer.opponent;
+        }
+    }
 
     public boolean hasWinner() {
         return (board[0] != null && board[0] == board[1] && board[0] == board[2])
@@ -48,19 +73,17 @@ class Game {
             throw new IllegalStateException("You don't have an opponent yet");
         } else if (board[moveTo1][moveTo1] != null) {
             throw new IllegalStateException("Cell already occupied");
-//        } else if (board[moveFrom1][moveFrom2] == null) {
+//      } else if (board[moveFrom1][moveFrom2] == null) {
 //            throw new IllegalStateException("Cell has no piece");
-//        }
+//      } else if (board[moveFrom1][moveFrom2] != currentPlayer){
+//            throw new IllegalStateException("Cannot move opponents piece");
+//      }
         }
+        board[moveFrom1][moveFrom2] = null;
         board[moveTo1][moveTo2] = currentPlayer;
         currentPlayer = currentPlayer.opponent;
     }
 
-    /**
-     * A Player is identified by a character mark which is either 'X' or 'O'. For
-     * communication with the client the player has a socket and associated Scanner
-     * and PrintWriter.
-     */
     class Player implements Runnable {
         char mark;
         Player opponent;
@@ -111,7 +134,6 @@ class Game {
                 if (command.startsWith("QUIT")) {
                     return;
                 } else if (command.startsWith("MOVE")) {
-                    System.out.println(Integer.parseInt(command.substring(6, 7)));
                     processMoveCommand(Integer.parseInt(command.substring(5, 6)), Integer.parseInt(command.substring(6, 7)), Integer.parseInt(command.substring(7, 8)), Integer.parseInt(command.substring(8, 9)));
                 }
             }
@@ -121,7 +143,7 @@ class Game {
             try {
                 move(moveFrom1, moveFrom2, moveTo1, moveTo2, this);
                 output.println("VALID_MOVE");
-                opponent.output.println("OPPONENT_MOVED " + moveTo1 + moveTo2);
+                opponent.output.println("OPPONENT_MOVED " + moveFrom1 + moveFrom2 + moveTo1 + moveTo2);
 //                if (hasWinner()) {
 //                    output.println("VICTORY");
 //                    opponent.output.println("DEFEAT");
