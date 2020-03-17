@@ -36,7 +36,8 @@ class Game {
     }
 
     public void setupBoard(){
-        int i,j;
+        int i;
+        int j;
         for (i=0;i<8;i++){
             for (j=0;j<8;j++){
                 board[j][i] = null;
@@ -66,22 +67,42 @@ class Game {
     }
 
     public synchronized void move(int moveFrom1, int moveFrom2, int moveTo1, int moveTo2, Player player) {
+        System.out.print(moveFrom1 + "" + moveFrom2 + " " + moveTo1 + "" + moveTo2 + "\n");
         // Game logic handled here
         if (player != currentPlayer) {
             throw new IllegalStateException("Not your turn");
         } else if (player.opponent == null) {
             throw new IllegalStateException("You don't have an opponent yet");
-        } else if (board[moveTo1][moveTo1] != null) {
+        } else if (board[moveTo1][moveTo2] != null) {
             throw new IllegalStateException("Cell already occupied");
-//      } else if (board[moveFrom1][moveFrom2] == null) {
-//            throw new IllegalStateException("Cell has no piece");
-//      } else if (board[moveFrom1][moveFrom2] != currentPlayer){
-//            throw new IllegalStateException("Cannot move opponents piece");
-//      }
+        } else if (board[moveFrom1][moveFrom2] == null) {
+            throw new IllegalStateException("Cell has no piece");
+        } else if (board[moveFrom1][moveFrom2] != currentPlayer) {
+            throw new IllegalStateException("Cannot move opponents piece");
+        } else if (Math.abs(moveFrom1 - moveTo1) != 1){
+            //if((moveFrom1 + moveFrom2) - (moveTo1 + moveTo2) != 1 || (moveFrom1 + moveFrom2) - (moveTo1 + moveTo2) != -1) {
+            throw new IllegalStateException("Invalid move");
+            //}
         }
-        board[moveFrom1][moveFrom2] = null;
-        board[moveTo1][moveTo2] = currentPlayer;
-        currentPlayer = currentPlayer.opponent;
+        System.out.println(Math.abs((moveFrom1 + moveFrom2) - (moveTo1 + moveTo2)));
+        System.out.println(currentPlayer.mark);
+        System.out.println(moveTo2 - moveFrom2);
+        System.out.println(Math.abs(moveTo1 - moveFrom1));
+
+        // control valid moves
+        if ((currentPlayer.mark == 'r' &&
+                (moveTo1 - moveFrom1) == 1 &&
+                Math.abs(moveTo2 - moveFrom2) == 1) ||
+                (currentPlayer.mark == 'b' &&
+                        (moveTo1 - moveFrom1) == -1 &&
+                        Math.abs(moveTo2 - moveFrom2) == 1)) {
+            board[moveFrom1][moveFrom2] = null;
+            board[moveTo1][moveTo2] = currentPlayer;
+            currentPlayer = currentPlayer.opponent;
+            System.out.println("Oponent is " + currentPlayer.mark);
+        } else{
+            throw new IllegalStateException("Invalid move");
+        }
     }
 
     class Player implements Runnable {
@@ -94,12 +115,16 @@ class Game {
         public Player(Socket socket, char mark) {
             this.socket = socket;
             this.mark = mark;
+            try{
+                setup();
+            } catch(Exception e){
+                e.printStackTrace();
+            }
         }
 
         @Override
         public void run() {
             try {
-                setup();
                 processCommands();
             } catch (Exception e) {
                 e.printStackTrace();

@@ -86,7 +86,7 @@ public class Client {
      */
 
     public void setup(){
-        int i,j;
+        int i;
         for (i=1;i<8;i+=2) {
             board[1][i].setText('r');
             board[5][i].setText('b');
@@ -131,17 +131,16 @@ public class Client {
                 } else if (response.startsWith("MESSAGE")) {
                     messageLabel.setText(response.substring(8));
                 } else if (response.startsWith("VICTORY")) {
-                    JOptionPane.showMessageDialog(frame, "Winner Winner");
+                    JOptionPane.showMessageDialog(frame, "Winner!");
                     break;
                 } else if (response.startsWith("DEFEAT")) {
-                    JOptionPane.showMessageDialog(frame, "Sorry you lost");
+                    JOptionPane.showMessageDialog(frame, "You lost...");
                     break;
                 } else if (response.startsWith("TIE")) {
-                    JOptionPane.showMessageDialog(frame, "Tie");
+                    JOptionPane.showMessageDialog(frame, "Game is a tie.");
                     break;
                 } else if (response.startsWith("OTHER_PLAYER_LEFT")) {
-                    JOptionPane.showMessageDialog(frame, "Other player left");
-                    break;
+                    messageLabel.setText("Other player left");
                 }
             }
             out.println("QUIT");
