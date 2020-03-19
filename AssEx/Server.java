@@ -11,15 +11,14 @@ public class Server{
     public static void main(String[] args) throws Exception {
         try (var listener = new ServerSocket(58901)) {
             System.out.println("Checkers Server is Running...");
-            var pool = Executors.newFixedThreadPool(200);
+            var pool = Executors.newFixedThreadPool(2);
             while (true) {
                 Game game = new Game();
                 pool.execute(game.new Player(listener.accept(), 'r'));
                 System.out.println("Player 1 connected...");
                 pool.execute(game.new Player(listener.accept(), 'b'));
                 System.out.println("Player 2 connected...");
-                game.setupBoard();
-
+                game.setupBoard(); // initialise game board with pieces
             }
         }
     }
@@ -35,6 +34,7 @@ class Game {
 
     }
 
+    // populates the board with player pieces
     public void setupBoard(){
         int i;
         int j;
@@ -66,42 +66,51 @@ class Game {
                 || (board[2] != null && board[2] == board[4] && board[2] == board[6]);
     }
 
+    // Move logic handled here, checks for legal/illegal movements
     public synchronized void move(int moveFrom1, int moveFrom2, int moveTo1, int moveTo2, Player player) {
         System.out.print(moveFrom1 + "" + moveFrom2 + " " + moveTo1 + "" + moveTo2 + "\n");
-        // Game logic handled here
         if (player != currentPlayer) {
-            throw new IllegalStateException("Not your turn");
+            throw new IllegalStateException("Not your turn...");
         } else if (player.opponent == null) {
-            throw new IllegalStateException("You don't have an opponent yet");
+            throw new IllegalStateException("You don't have an opponent...");
         } else if (board[moveTo1][moveTo2] != null) {
-            throw new IllegalStateException("Cell already occupied");
+            throw new IllegalStateException("Board square already occupied...");
         } else if (board[moveFrom1][moveFrom2] == null) {
-            throw new IllegalStateException("Cell has no piece");
+            throw new IllegalStateException("Board square has no piece...");
         } else if (board[moveFrom1][moveFrom2] != currentPlayer) {
-            throw new IllegalStateException("Cannot move opponents piece");
-        } else if (Math.abs(moveFrom1 - moveTo1) != 1){
-            //if((moveFrom1 + moveFrom2) - (moveTo1 + moveTo2) != 1 || (moveFrom1 + moveFrom2) - (moveTo1 + moveTo2) != -1) {
-            throw new IllegalStateException("Invalid move");
-            //}
+            throw new IllegalStateException("Cannot move opponents pieces...");
         }
-        System.out.println(Math.abs((moveFrom1 + moveFrom2) - (moveTo1 + moveTo2)));
-        System.out.println(currentPlayer.mark);
-        System.out.println(moveTo2 - moveFrom2);
-        System.out.println(Math.abs(moveTo1 - moveFrom1));
+//        System.out.println(Math.abs((moveFrom1 + moveFrom2) - (moveTo1 + moveTo2)));
+//        System.out.println(currentPlayer.mark);
+//        System.out.println(moveTo2 - moveFrom2);
+//        System.out.println(Math.abs(moveTo1 - moveFrom1));
 
         // control valid moves
+        // standard move
         if ((currentPlayer.mark == 'r' &&
-                (moveTo1 - moveFrom1) == 1 &&
-                Math.abs(moveTo2 - moveFrom2) == 1) ||
+                    (moveTo1 - moveFrom1) == 1 &&
+                    Math.abs(moveTo2 - moveFrom2) == 1) ||
                 (currentPlayer.mark == 'b' &&
                         (moveTo1 - moveFrom1) == -1 &&
                         Math.abs(moveTo2 - moveFrom2) == 1)) {
             board[moveFrom1][moveFrom2] = null;
             board[moveTo1][moveTo2] = currentPlayer;
             currentPlayer = currentPlayer.opponent;
-            System.out.println("Oponent is " + currentPlayer.mark);
+            // check for jump
+//        } else if((currentPlayer.mark == 'r' &&
+//                    (moveTo1 - moveFrom1) == 2 &&
+//                    Math.abs(moveTo2 - moveFrom2) == 2 &&
+//                    board[(moveTo1-moveFrom1)/2][Math.abs(moveTo2-moveFrom2)/2].mark == 'b') ||
+//                (currentPlayer.mark == 'b' &&
+//                        (moveTo1 - moveFrom1) == -2 &&
+//                        Math.abs(moveTo2 - moveFrom2) == 2 &&
+//                        board[(moveTo1-moveFrom1)/2][Math.abs(moveTo2-moveFrom2)/2].mark == 'r')){
+//            board[moveFrom1][moveFrom2] = null;
+//            board[(moveTo1-moveFrom1)/2][(moveTo2-moveFrom2)/2] = null;
+//            board[moveTo1][moveTo2] = currentPlayer;
+//            currentPlayer = currentPlayer.opponent;
         } else{
-            throw new IllegalStateException("Invalid move");
+            throw new IllegalStateException("Invalid move " + currentPlayer.mark + ": " + moveFrom1 + moveFrom2 + moveTo1 + moveTo2);
         }
     }
 
@@ -114,9 +123,9 @@ class Game {
 
         public Player(Socket socket, char mark) {
             this.socket = socket;
-            this.mark = mark;
+            this.mark = mark; // either 'r' for red or 'b' for black
             try{
-                setup();
+                setup(); // assign current and opponent player
             } catch(Exception e){
                 e.printStackTrace();
             }

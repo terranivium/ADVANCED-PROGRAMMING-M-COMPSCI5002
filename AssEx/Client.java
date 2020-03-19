@@ -75,16 +75,6 @@ public class Client {
         });
     }
 
-    /**
-     * The main thread of the client will listen for messages from the server. The
-     * first message will be a "WELCOME" message in which we receive our mark. Then
-     * we go into a loop listening for any of the other messages, and handling each
-     * message appropriately. The "VICTORY", "DEFEAT", "TIE", and
-     * "OTHER_PLAYER_LEFT" messages will ask the user whether or not to play another
-     * game. If the answer is no, the loop is exited and the server is sent a "QUIT"
-     * message.
-     */
-
     public void setup(){
         int i;
         for (i=1;i<8;i+=2) {
@@ -157,11 +147,11 @@ public class Client {
 
         public Square() {
             setLayout(new GridBagLayout());
-            label.setFont(new Font("Arial", Font.BOLD, 40));
+            label.setFont(new Font("Terminal", Font.BOLD, 38));
             add(label);
-
         }
 
+        // used to alternate square colours to draw board
         public void setColour(boolean squareColour){
             if(squareColour){
                 setBackground(Color.white);
