@@ -1,3 +1,5 @@
+// 2460681S, Wesley Scott
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -7,17 +9,23 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 
 public class Server{
-
     public static void main(String[] args) throws Exception {
         try (var listener = new ServerSocket(58901)) {
-            System.out.println("Checkers Server is Running...");
-            var pool = Executors.newFixedThreadPool(2);
+            System.out.println();
+            System.out.println("------------------------------");
+            System.out.println("| Checkers Server is running |");
+            System.out.println("------------------------------");
+            var pool = Executors.newFixedThreadPool(2); // create thread pool of 2
             while (true) {
                 Game game = new Game();
+
+                // create new player instances in the game on their own thread
                 pool.execute(game.new Player(listener.accept(), 'r'));
                 System.out.println("Player 1 connected...");
+                System.out.println();
                 pool.execute(game.new Player(listener.accept(), 'b'));
                 System.out.println("Player 2 connected...");
+                System.out.println();
                 game.setupBoard(); // initialise game board with pieces
             }
         }
@@ -25,14 +33,9 @@ public class Server{
 }
 
 class Game {
-
     // Board cells numbered 0-8, top to bottom, left to right; null if empty
     private Player[][] board = new Player[8][8];
     Player currentPlayer;
-
-    public Game(){
-
-    }
 
     // populates the board with player pieces
     public void setupBoard(){
@@ -85,8 +88,7 @@ class Game {
 //        System.out.println(moveTo2 - moveFrom2);
 //        System.out.println(Math.abs(moveTo1 - moveFrom1));
 
-        // control valid moves
-        // standard move
+        // standard one square move
         if ((currentPlayer.mark == 'r' &&
                     (moveTo1 - moveFrom1) == 1 &&
                     Math.abs(moveTo2 - moveFrom2) == 1) ||
@@ -122,7 +124,7 @@ class Game {
         PrintWriter output;
 
         public Player(Socket socket, char mark) {
-            this.socket = socket;
+            this.socket = socket; // connection to server
             this.mark = mark; // either 'r' for red or 'b' for black
             try{
                 setup(); // assign current and opponent player
@@ -162,25 +164,32 @@ class Game {
             }
         }
 
-        private void processCommands() {
-            while (input.hasNextLine()) {
+        private void processCommands(){
+            while (input.hasNextLine()){
                 var command = input.nextLine();
                 if (command.startsWith("QUIT")) {
                     return;
                 } else if (command.startsWith("MOVE")) {
-                    processMoveCommand(Integer.parseInt(command.substring(5, 6)), Integer.parseInt(command.substring(6, 7)), Integer.parseInt(command.substring(7, 8)), Integer.parseInt(command.substring(8, 9)));
+                    processMoveCommand(
+                            Integer.parseInt(command.substring(5, 6)),
+                            Integer.parseInt(command.substring(6, 7)),
+                            Integer.parseInt(command.substring(7, 8)),
+                            Integer.parseInt(command.substring(8, 9))
+                    );
                 }
             }
         }
 
-        private void processMoveCommand(int moveFrom1, int moveFrom2, int moveTo1, int moveTo2) {
+        private void processMoveCommand(int moveFrom1, int moveFrom2, int moveTo1, int moveTo2){
             try {
                 move(moveFrom1, moveFrom2, moveTo1, moveTo2, this);
                 output.println("VALID_MOVE");
                 opponent.output.println("OPPONENT_MOVED " + moveFrom1 + moveFrom2 + moveTo1 + moveTo2);
+                // win condition
 //                if (hasWinner()) {
 //                    output.println("VICTORY");
 //                    opponent.output.println("DEFEAT");
+                // tie condition
 //                } else if (boardFilledUp()) { no possible moves
 //                    output.println("TIE");
 //                    opponent.output.println("TIE");

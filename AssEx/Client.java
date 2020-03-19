@@ -1,3 +1,5 @@
+// 2460681S, Wesley Scott
+
 import java.awt.Font;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -8,22 +10,20 @@ import java.awt.event.MouseEvent;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.net.Socket;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class Client {
-
-    private JFrame frame = new JFrame("Checkers");
-    private JLabel messageLabel = new JLabel("...");
+    private JFrame frame = new JFrame("Checkers 2020 - ver. 1.0");
+    private JLabel messageLabel = new JLabel("");
 
     private Square[][] board = new Square[8][8];
     private Square moveFrom;
+    private Square moveTo;
     int fromCol;
     int fromRow;
-    private Square moveTo;
     private int redCheckers = 12;
     private int blackCheckers = 12;
 
@@ -96,7 +96,7 @@ public class Client {
             var opponentMark = mark == 'r' ? 'b' : 'r';
             frame.setTitle("Checkers: Player " + mark);
 
-            // setup board?
+            // setup board
             setup();
 
             while (in.hasNextLine()) {
@@ -117,17 +117,17 @@ public class Client {
                     board[opMoveTo1][opMoveTo2].setText(opponentMark);
                     board[opMoveFrom1][opMoveFrom2].repaint();
                     board[opMoveTo1][opMoveTo2].repaint();
-                    messageLabel.setText("Opponent moved, your turn");
+                    messageLabel.setText("Opponent moved - your turn");
                 } else if (response.startsWith("MESSAGE")) {
                     messageLabel.setText(response.substring(8));
                 } else if (response.startsWith("VICTORY")) {
-                    JOptionPane.showMessageDialog(frame, "Winner!");
+                    JOptionPane.showMessageDialog(frame, "You Win!");
                     break;
                 } else if (response.startsWith("DEFEAT")) {
                     JOptionPane.showMessageDialog(frame, "You lost...");
                     break;
                 } else if (response.startsWith("TIE")) {
-                    JOptionPane.showMessageDialog(frame, "Game is a tie.");
+                    JOptionPane.showMessageDialog(frame, "Game has ended in a tie...");
                     break;
                 } else if (response.startsWith("OTHER_PLAYER_LEFT")) {
                     messageLabel.setText("Other player left");
