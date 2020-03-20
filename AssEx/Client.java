@@ -70,9 +70,10 @@ public class Client {
                     int col = e.getX() / 75;
                     int row = e.getY() / 72;
                     moveTo = board[row][col];
-                    moveJump = board[(fromCol+col)/2][(fromRow+row)/2];
+                    moveJump = board[(fromRow+row)/2][(fromCol+col)/2];
                     out.println("MOVE " + fromRow + fromCol + row + col);
                     System.out.println("MOVE " + fromRow + fromCol + row + col);
+                    System.out.println("JUMP " + (fromCol+col)/2 + "" +(fromRow+row)/2);
             }
         });
     }
