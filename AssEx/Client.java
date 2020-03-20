@@ -22,6 +22,7 @@ public class Client {
     private Square[][] board = new Square[8][8];
     private Square moveFrom;
     private Square moveTo;
+    private Square moveJump;
     int fromCol;
     int fromRow;
     private int redCheckers = 12;
@@ -69,6 +70,7 @@ public class Client {
                     int col = e.getX() / 75;
                     int row = e.getY() / 72;
                     moveTo = board[row][col];
+                    moveJump = board[(fromCol+col)/2][(fromRow+row)/2];
                     out.println("MOVE " + fromRow + fromCol + row + col);
                     System.out.println("MOVE " + fromRow + fromCol + row + col);
             }
@@ -104,8 +106,10 @@ public class Client {
                 if (response.startsWith("VALID_MOVE")) {
                     messageLabel.setText("Valid move, please wait");
                     moveFrom.setText(' ');
+                    moveJump.setText(' ');
                     moveTo.setText(mark);
                     moveFrom.repaint();
+                    moveJump.repaint();
                     moveTo.repaint();
                 } else if (response.startsWith("OPPONENT_MOVED")) {
                     System.out.println(response);
@@ -114,8 +118,10 @@ public class Client {
                     var opMoveTo1 = Integer.parseInt(response.substring(17,18));
                     var opMoveTo2 = Integer.parseInt(response.substring(18,19));
                     board[opMoveFrom1][opMoveFrom2].setText(' ');
+                    board[(opMoveFrom1+opMoveTo1)/2][(opMoveFrom2+opMoveTo2)/2].setText(' ');
                     board[opMoveTo1][opMoveTo2].setText(opponentMark);
                     board[opMoveFrom1][opMoveFrom2].repaint();
+                    board[(opMoveFrom1+opMoveTo1)/2][(opMoveFrom2+opMoveTo2)/2].repaint();
                     board[opMoveTo1][opMoveTo2].repaint();
                     messageLabel.setText("Opponent moved - your turn");
                 } else if (response.startsWith("MESSAGE")) {

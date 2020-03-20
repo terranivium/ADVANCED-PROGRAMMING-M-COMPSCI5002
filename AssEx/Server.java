@@ -83,10 +83,10 @@ class Game {
         } else if (board[moveFrom1][moveFrom2] != currentPlayer) {
             throw new IllegalStateException("Cannot move opponents pieces...");
         }
-//        System.out.println(Math.abs((moveFrom1 + moveFrom2) - (moveTo1 + moveTo2)));
-//        System.out.println(currentPlayer.mark);
-//        System.out.println(moveTo2 - moveFrom2);
-//        System.out.println(Math.abs(moveTo1 - moveFrom1));
+        System.out.println(Math.abs((moveFrom1 + moveFrom2) - (moveTo1 + moveTo2)));
+        System.out.println(currentPlayer.mark);
+        System.out.println(moveTo2 - moveFrom2);
+        System.out.println(Math.abs(moveTo1 - moveFrom1));
 
         // standard one square move
         if ((currentPlayer.mark == 'r' &&
@@ -99,18 +99,18 @@ class Game {
             board[moveTo1][moveTo2] = currentPlayer;
             currentPlayer = currentPlayer.opponent;
             // check for jump
-//        } else if((currentPlayer.mark == 'r' &&
-//                    (moveTo1 - moveFrom1) == 2 &&
-//                    Math.abs(moveTo2 - moveFrom2) == 2 &&
-//                    board[(moveTo1-moveFrom1)/2][Math.abs(moveTo2-moveFrom2)/2].mark == 'b') ||
-//                (currentPlayer.mark == 'b' &&
-//                        (moveTo1 - moveFrom1) == -2 &&
-//                        Math.abs(moveTo2 - moveFrom2) == 2 &&
-//                        board[(moveTo1-moveFrom1)/2][Math.abs(moveTo2-moveFrom2)/2].mark == 'r')){
-//            board[moveFrom1][moveFrom2] = null;
-//            board[(moveTo1-moveFrom1)/2][(moveTo2-moveFrom2)/2] = null;
-//            board[moveTo1][moveTo2] = currentPlayer;
-//            currentPlayer = currentPlayer.opponent;
+        } else if((currentPlayer.mark == 'r' &&
+                    (moveTo1 - moveFrom1) == 2 &&
+                    Math.abs(moveTo2 - moveFrom2) == 2 &&
+                    board[(moveTo1+moveFrom1)/2][Math.abs(moveTo2+moveFrom2)/2].mark == 'b') ||
+                (currentPlayer.mark == 'b' &&
+                        (moveTo1 - moveFrom1) == -2 &&
+                        Math.abs(moveTo2 - moveFrom2) == 2 &&
+                        board[(moveTo1+moveFrom1)/2][Math.abs(moveTo2+moveFrom2)/2].mark == 'r')){
+            board[moveFrom1][moveFrom2] = null;
+            board[(moveTo1+moveFrom1)/2][(moveTo2+moveFrom2)/2] = null;
+            board[moveTo1][moveTo2] = currentPlayer;
+            currentPlayer = currentPlayer.opponent;
         } else{
             throw new IllegalStateException("Invalid move " + currentPlayer.mark + ": " + moveFrom1 + moveFrom2 + moveTo1 + moveTo2);
         }
