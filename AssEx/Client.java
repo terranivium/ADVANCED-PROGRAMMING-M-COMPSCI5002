@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 
 public class Client {
     private JFrame frame = new JFrame("Checkers 2020 - ver. 1.0");
-    private JLabel messageLabel = new JLabel("");
+    private JLabel messageLabel = new JLabel(" ");
 
     private Square[][] board = new Square[8][8];
     private Square moveFrom;
@@ -25,8 +25,6 @@ public class Client {
     private Square moveJump;
     int fromCol;
     int fromRow;
-    private int redCheckers = 12;
-    private int blackCheckers = 12;
 
     private Socket socket;
     private Scanner in;

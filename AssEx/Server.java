@@ -6,16 +6,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executors; // implementation of threading
 
 public class Server{
     public static void main(String[] args) throws Exception {
         try (var listener = new ServerSocket(58901)) {
             System.out.println();
             System.out.println("------------------------------");
-            System.out.println("| Checkers Server is running |");
+            System.out.println("| Checkers server is running |");
             System.out.println("------------------------------");
-            var pool = Executors.newFixedThreadPool(2); // create thread pool of 2
+            var pool = Executors.newFixedThreadPool(2); // create thread pool size of 2
             while (true) {
                 Game game = new Game();
 
@@ -58,16 +58,9 @@ class Game {
         }
     }
 
-    public boolean hasWinner() {
-        return (board[0] != null && board[0] == board[1] && board[0] == board[2])
-                || (board[3] != null && board[3] == board[4] && board[3] == board[5])
-                || (board[6] != null && board[6] == board[7] && board[6] == board[8])
-                || (board[0] != null && board[0] == board[3] && board[0] == board[6])
-                || (board[1] != null && board[1] == board[4] && board[1] == board[7])
-                || (board[2] != null && board[2] == board[5] && board[2] == board[8])
-                || (board[0] != null && board[0] == board[4] && board[0] == board[8])
-                || (board[2] != null && board[2] == board[4] && board[2] == board[6]);
-    }
+//    public boolean hasWinner() {
+//
+//    }
 
     // Move logic handled here, checks for legal/illegal movements
     public synchronized void move(int moveFrom1, int moveFrom2, int moveTo1, int moveTo2, Player player) {
@@ -83,10 +76,49 @@ class Game {
         } else if (board[moveFrom1][moveFrom2] != currentPlayer) {
             throw new IllegalStateException("Cannot move opponents pieces...");
         }
-        System.out.println(Math.abs((moveFrom1 + moveFrom2) - (moveTo1 + moveTo2)));
-        System.out.println(currentPlayer.mark);
-        System.out.println(moveTo2 - moveFrom2);
-        System.out.println(Math.abs(moveTo1 - moveFrom1));
+//
+
+
+        // force player to jump?
+        if(currentPlayer.mark == 'r') {
+            for (int i = 0; i < 6; i++) {
+                for (int j = 1; j < 7; j++){ ;
+                    if (board[j][i] == currentPlayer) {
+                        if (board[j + 1][i - 1] == currentPlayer.opponent) {
+                            if (board[j + 2][i - 2] == null) {
+                                throw new IllegalStateException("Jump must be made...");
+                            }
+                        }
+                        if (board[j + 1][i + 1] == currentPlayer.opponent) {
+                            if (board[j + 2][i + 2] == null) {
+                                throw new IllegalStateException("Jump must be made...");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // force player to jump
+        if(currentPlayer.mark == 'b') {
+            for (int i = 8; i > board.length; i++) {
+                for (int j = 0; j < board.length; j++){ ;
+                    if (board[j][i] == currentPlayer) {
+                        if (board[j - 1][i - 1] == currentPlayer.opponent) {
+                            if (board[j - 2][i - 2] == null) {
+                                throw new IllegalStateException("Jump must be made...");
+                            }
+                        }
+                        if (board[j - 1][i + 1] == currentPlayer.opponent) {
+                            if (board[j - 2][i + 2] == null) {
+                                throw new IllegalStateException("Jump must be made...");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
 
         // standard one square move
         if ((currentPlayer.mark == 'r' &&
@@ -119,6 +151,7 @@ class Game {
     class Player implements Runnable {
         char mark;
         Player opponent;
+        int checkers;
         Socket socket;
         Scanner input;
         PrintWriter output;
@@ -156,9 +189,11 @@ class Game {
             output.println("WELCOME " + mark);
             if (mark == 'r') {
                 currentPlayer = this;
+                currentPlayer.checkers = 12;
                 output.println("MESSAGE Waiting for opponent to connect");
             } else {
                 opponent = currentPlayer;
+                opponent.checkers = 12;
                 opponent.opponent = this;
                 opponent.output.println("MESSAGE Your move");
             }
