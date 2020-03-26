@@ -83,7 +83,7 @@ class Game {
             for (int i = 0; i <= 5; i++) {
                 for (int j = 0; j <= 7; j++) {
                     if (board[i][j] == currentPlayer) {
-                        if (j >= 7) { // far right
+                        if (j >= 6) { // far right
                             // check left
                             if (board[i + 1][j - 1] == currentPlayer.opponent) {
                                 if (board[i + 2][j - 2] == null) {
@@ -102,16 +102,22 @@ class Game {
                                 }
                             }
                         } else {
-                            // check right
-                            if (board[i + 1][j + 1] == currentPlayer.opponent) {
+                            // edge case where 2 jumps are possible
+                            if(board[i+1][j+1] == currentPlayer.opponent && board[i + 1][j - 1] == currentPlayer.opponent){
+                                if(board[i+2][j+2] == null && board[i+2][j-2] == null){
+                                    if(moveTo1 != (i+2)){
+                                        throw new IllegalStateException("Jump must be made...");
+                                    }
+                                }
+                                // check right
+                            } else if (board[i + 1][j + 1] == currentPlayer.opponent) {
                                 if (board[i + 2][j + 2] == null) {
                                     if (moveTo1 != (i + 2) || moveTo2 != (j + 2)) {
                                         throw new IllegalStateException("Jump must be made...");
                                     }
                                 }
-                            }
-                            // check left
-                            if (board[i + 1][j - 1] == currentPlayer.opponent) {
+                                // check left
+                            } else if (board[i + 1][j - 1] == currentPlayer.opponent) {
                                 if (board[i + 2][j - 2] == null) {
                                     if (moveTo1 != (i + 2) || moveTo2 != (j - 2)) {
                                         throw new IllegalStateException("Jump must be made...");
@@ -127,7 +133,7 @@ class Game {
             for (int i = 2; i <= 7; i++) {
                 for (int j = 0; j <= 7; j++) {
                     if (board[i][j] == currentPlayer) {
-                        if (j >= 7) { // far right
+                        if (j >= 6) { // far right
                             // check left
                             if (board[i - 1][j - 1] == currentPlayer.opponent) {
                                 if (board[i - 2][j - 2] == null) {
@@ -146,18 +152,24 @@ class Game {
                                 }
                             }
                         } else {
-                            // check right
-                            if (board[i - 1][j + 1] == currentPlayer.opponent) {
-                                if (board[i - 2][j + 2] == null) {
-                                    if(moveTo1 != (i - 2) || moveTo2 != (j + 2)) {
+                            // edge case where 2 jumps are possible
+                            if(board[i - 1][j + 1] == currentPlayer.opponent && board[i - 1][j - 1] == currentPlayer.opponent){
+                                if (board[i - 2][j + 2] == null && board[i - 2][j - 2] == null) {
+                                    if(moveTo1 != (i-2)){
                                         throw new IllegalStateException("Jump must be made...");
                                     }
                                 }
-                            }
-                            // check left
-                            if (board[i - 1][j - 1] == currentPlayer.opponent) {
+                                // check right
+                            } else if (board[i - 1][j + 1] == currentPlayer.opponent) {
+                                if (board[i - 2][j + 2] == null) {
+                                    if (moveTo1 != (i - 2) || moveTo2 != (j + 2)) {
+                                        throw new IllegalStateException("Jump must be made...");
+                                    }
+                                }
+                                // check left
+                            } else if (board[i - 1][j - 1] == currentPlayer.opponent) {
                                 if (board[i - 2][j - 2] == null) {
-                                    if(moveTo1 != (i - 2) || moveTo2 != (j - 2)){
+                                    if (moveTo1 != (i - 2) || moveTo2 != (j - 2)) {
                                         throw new IllegalStateException("Jump must be made...");
                                     }
                                 }
@@ -167,6 +179,7 @@ class Game {
                 }
             }
         }
+
         // check for legal move made
         // standard one square move
         if ((currentPlayer.mark == 'r' &&
@@ -178,7 +191,6 @@ class Game {
             board[moveFrom1][moveFrom2] = null;
             board[moveTo1][moveTo2] = currentPlayer;
             currentPlayer = currentPlayer.opponent;
-
         // jump move
         } else if((currentPlayer.mark == 'r' &&
                     (moveTo1 - moveFrom1) == 2 &&
@@ -193,7 +205,10 @@ class Game {
             board[moveTo1][moveTo2] = currentPlayer;
             currentPlayer = currentPlayer.opponent;
         } else{
-            throw new IllegalStateException("Invalid move " + currentPlayer.mark + ": " + moveFrom1 + moveFrom2 + moveTo1 + moveTo2);
+            throw new IllegalStateException(
+                    "Invalid move " + currentPlayer.mark +
+                            " From: " + moveFrom1 + "" + moveFrom2 +
+                            " To: " + moveTo1 + "" + moveTo2);
         }
     }
 
