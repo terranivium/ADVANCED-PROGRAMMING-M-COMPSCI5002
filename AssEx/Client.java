@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class Client {
-    private JFrame frame = new JFrame("Checkers 2020 - ver. 1.0");
+    private JFrame frame = new JFrame("netDraughts - ver. 1.0");
     private JLabel messageLabel = new JLabel(" ");
 
     private Square[][] board = new Square[8][8];
@@ -32,7 +32,7 @@ public class Client {
 
     public Client(String serverAddress) throws Exception {
 
-        socket = new Socket(serverAddress, 58901);
+        socket = new Socket(serverAddress, 9876);
         in = new Scanner(socket.getInputStream());
         out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -49,10 +49,10 @@ public class Client {
                 final int l = j;
                 if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1)) {
                     board[i][j] = new Square();
-                    board[i][j].setColour(true);
+                    board[i][j].setColour(false);
                 } else {
                     board[i][j] = new Square();
-                    board[i][j].setColour(false);
+                    board[i][j].setColour(true);
                 }
                 boardPanel.add(board[k][l]);
             }
@@ -70,8 +70,8 @@ public class Client {
                     moveTo = board[row][col];
                     moveJump = board[(fromRow+row)/2][(fromCol+col)/2];
                     out.println("MOVE " + fromRow + fromCol + row + col);
-                    System.out.println("MOVE " + fromRow + fromCol + row + col);
-                    System.out.println("JUMP " + (fromCol+col)/2 + "" +(fromRow+row)/2);
+                    // System.out.println("MOVE " + fromRow + fromCol + row + col);
+                    // System.out.println("JUMP " + (fromCol+col)/2 + "" +(fromRow+row)/2);
             }
         });
     }
@@ -79,14 +79,14 @@ public class Client {
     public void setup(){
         int i;
         for (i=1;i<8;i+=2) {
-            board[1][i].setText('r');
-            board[5][i].setText('b');
-            board[7][i].setText('b');
+            board[1][i].setText('b');
+            board[5][i].setText('r');
+            board[7][i].setText('r');
         }
         for (i=0;i<8;i+=2) {
-            board[0][i].setText('r');
-            board[2][i].setText('r');
-            board[6][i].setText('b');
+            board[0][i].setText('b');
+            board[2][i].setText('b');
+            board[6][i].setText('r');
         }
     }
 
@@ -111,7 +111,7 @@ public class Client {
                     moveJump.repaint();
                     moveTo.repaint();
                 } else if (response.startsWith("OPPONENT_MOVED")) {
-                    System.out.println(response);
+                    // System.out.println(response);
                     var opMoveFrom1 = Integer.parseInt(response.substring(15,16));
                     var opMoveFrom2 = Integer.parseInt(response.substring(16,17));
                     var opMoveTo1 = Integer.parseInt(response.substring(17,18));
